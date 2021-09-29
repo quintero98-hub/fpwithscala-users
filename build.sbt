@@ -1,4 +1,4 @@
-val CatsVersion = "2.2.0"
+val CatsVersion = "a"
 val Http4sVersion = "0.21.16"
 val CirceVersion = "0.13.0"
 val CirceConfigVersion = "0.8.0"
