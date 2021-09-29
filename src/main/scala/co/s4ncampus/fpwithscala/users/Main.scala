@@ -31,8 +31,10 @@ object Main extends IOApp{
             userRepo = DoobieUserRepositoryInterpreter[F](xa)
             userValidation = UserValidationInterpreter[F](userRepo)
             userService = UserService[F](userRepo, userValidation)
+            id = 103
             httpApp = Router(
-                "/users" -> UsersController.endpoints[F](userService)
+                "/users"           -> UsersController.endpoints[F](userService),
+                s"/users/${id}"    -> UsersController.endpoints[F](userService)
             ).orNotFound
             _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
             server <- BlazeServerBuilder[F](serverExecutionContexts)
