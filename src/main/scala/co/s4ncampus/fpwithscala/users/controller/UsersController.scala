@@ -33,13 +33,28 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
             case req@ PUT -> Root /legalId =>
                 val action = for {
                     user   <- req.as[User]
+                    result <- userService.upload(user, legalId)
+                } yield result
+                action.flatMap{
+                    case true  => Ok(s"the user with id = $legalId has been modified")
+                    case false => Conflict(s"Couldn't find the user with legal id $legalId")
+                }
+                /*
+                val action = for {
+                    user   <- req.as[User]
                     result <- userService.upload(user, legalId).value
                 } yield result
-                println("update" + action)
+              action.flatMap{
+                  case Some(user) => Ok(user.asJson)
+                  case None       => Conflict(s"Couldn't find the user with legal id $legalId")
+              }
+                 */
+                /*
                 action.flatMap {
-                    case Right(existing) => Conflict(s"The user with legal id ${existing.legalId} doesn't exist")
-                    case Left(UserDoesntExistError(saved)) => Ok(saved.asJson)
+                    case Right(saved) => Ok(saved.asJson)
+                    case Left(UserDoesntExistError(existing)) => Conflict(s"The user with legal id ${existing.legalId} doesn't exist")
                 }
+                 */
         }
     }
 
