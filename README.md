@@ -6,37 +6,13 @@ Sample project for FP with Scala Course
 
 <!-- GETTING STARTED -->
 ## Deployment 🚀
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/yonn28/dashDs4.git
+1. Go to the corresponding project's path and run the following commands:
    ```
-2. Create virtual enviroment (please verify you have venv in your system)
-   ```
-   python3 -m venv dashDS4
+   sbt
+   compile
+   run
    ```
    
-### Docker testing local
-
-```
-docker build -t docker-ds4 .
-docker run docker-ds4 -p 8080:8080
-```
-##### It's exposed at 8080 port in localhost
-
-### Deploy GCP by hand
-
-1. Setting default region
-
-```
-gcloud config set run/region northamerica-northeast1
- 
- ```
-2. Setting gcloud google container registry
-
-```
-gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4all-deploy
-```
 # HTTP METHODS
 
 ## POST
@@ -49,12 +25,7 @@ gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4
    - In positive case it returns the user in JSON format.
    - "The user with legal id <legalId> already exists"
  
-* Example:
-      
-```
-gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4all-deploy
-```
-   
+* Example:      
 ```
 curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","email":"algo@gmail.com","phone":"3158453256"}' http://localhost:8000/users
 ```
@@ -68,6 +39,10 @@ curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","ema
 * Response: 
        - String with validation message: "The user with legalId <legalId> has been modified.". 
        - If the user wasn't found: "Couldn't find the user with legalID <legalId>"
+* Example:      
+   ```
+   curl -X PUT -d '{"legalId":"103","firstName":"Camilo", "lastName":"Zuluaga", "email":"carlos_zuluaga@epam.com", "phone":"3503247638"}' http://localhost:8000/users/103
+   ```
 
 ## GET
 
@@ -78,6 +53,10 @@ curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","ema
 * Response: 
    - A list with all the users in JSON format. 
    - If there is no users it returns "There is no users created".
+* Example:
+   ```
+   curl http://localhost:8000/users
+   ```
 
 ### /users/<legalId>
 * Summary: Retrieve the specified user.
@@ -86,6 +65,11 @@ curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","ema
 * Response:
    - The user in JSON format
    - In negative case: "Couldn't find the user with legal id <legalId>"
+   
+* Example:
+   ```
+   curl http://localhost:8000/users/103
+   ```
    
 ## DELETE
 
@@ -96,7 +80,11 @@ curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","ema
 * Response: 
    - "User deleted"
    - Otherwise, it returns "Couldn't find the user with legal id <legalId>"
-
+   
+* Example:
+   ```
+   curl -X DELETE http://localhost:8000/users/103
+   ```
 
 <!-- CONTACT -->
 ## Authors ✒️
