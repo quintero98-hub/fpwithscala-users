@@ -37,6 +37,49 @@ gcloud config set run/region northamerica-northeast1
 ```
 gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4all-deploy
 ```
+# HTTP METHODS
+
+## POST
+
+### /users
+* Summary:
+* Description:
+* Parameters: None
+* Response:
+
+## PUT
+
+### /users/<legalId>
+* Summary: Update USERS table
+* Description: Validate that user exists in the database and overwrite its information with the new data in the corresponding row.
+* Parameters: legalId
+* Response: 
+       String with validation message: "The user with legalId <legalId> has been modified.". 
+       If the user wasn't found: "Couldn't find the user with legalID <legalId>"
+
+
+## GET
+
+### /users
+* Summary:
+* Description:
+* Parameters: None
+* Response:
+
+### /users/<legalId>
+* Summary:
+* Description:
+* Parameters: None
+* Response:
+   
+## DELETE
+
+### /users
+* Summary: /<legalId>
+* Description:
+* Parameters: None
+* Response:
+
 
 
 <!-- CONTACT -->
