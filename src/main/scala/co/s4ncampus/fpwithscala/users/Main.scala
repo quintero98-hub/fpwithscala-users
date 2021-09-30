@@ -32,7 +32,7 @@ object Main extends IOApp{
             userValidation = UserValidationInterpreter[F](userRepo)
             userService = UserService[F](userRepo, userValidation)
             httpApp = Router(
-                "/users" -> UsersController.endpoints[F](userService)
+                "/users"           -> UsersController.endpoints[F](userService)
             ).orNotFound
             _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
             server <- BlazeServerBuilder[F](serverExecutionContexts)

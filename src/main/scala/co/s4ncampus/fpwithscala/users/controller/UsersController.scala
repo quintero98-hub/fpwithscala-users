@@ -31,10 +31,43 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
                     case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
                 }
         }
+    //falta validar si el usuario existe
+    private def updateUser(userService: UserService[F]): HttpRoutes[F] = {
+        HttpRoutes.of[F] {
+            //@GET public String printUserName(@PathParam("userName") String userId)
+            case req@ PUT -> Root  =>
+                val action = for {
+                    user   <- req.as[User]
+                    result <- userService.upload(user).value
+                } yield result
+
+                action.flatMap {
+                    case Right(saved) => Ok(saved.asJson)
+                    case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
+                }
+        }
+    }
+
+    private def getUser(userService: UserService[F]): HttpRoutes[F] = {
+        HttpRoutes.of[F] {
+            case GET -> Root /id =>
+                userService.getUser(id).value.flatMap {
+                    case Some(user) => Ok(user.asJson)
+                    case None       => Conflict(s"Couldn't find the user with legal id $id")
+                }
+        }
+    }
+
+    /*
+    * def get(id: Long): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
+    clientsDao.get(id).map(_.getOrElse(throw NotFoundException()))
+      .map(x => Ok(Json.toJson(x)))
+  }
+    * */
 
     def endpoints(userService: UserService[F]): HttpRoutes[F] = {
         //To convine routes use the function `<+>`
-        createUser(userService)
+        createUser(userService)<+>updateUser(userService)<+>getUser(userService)
     }
 
 }
