@@ -18,10 +18,10 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
         HttpRoutes.of[F] {
             case req @ POST -> Root =>
                 val action = for {
-                    user <- req.as[User]
+                    user   <- req.as[User]
                     result <- userService.create(user).value
                 } yield result
-                
+                println("create" + action)
                 action.flatMap {
                     case Right(saved) => Ok(saved.asJson)
                     case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
@@ -30,16 +30,15 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
     //falta validar si el usuario existe
     private def updateUser(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
-            //@GET public String printUserName(@PathParam("userName") String userId)
-            case req@ PUT -> Root  =>
+            case req@ PUT -> Root /legalId =>
                 val action = for {
                     user   <- req.as[User]
-                    result <- userService.upload(user).value
+                    result <- userService.upload(user, legalId).value
                 } yield result
-
+                println("update" + action)
                 action.flatMap {
-                    case Right(saved) => Ok(saved.asJson)
-                    case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
+                    case Right(existing) => Conflict(s"The user with legal id ${existing.legalId} doesn't exist")
+                    case Left(UserDoesntExistError(saved)) => Ok(saved.asJson)
                 }
         }
     }
