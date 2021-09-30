@@ -15,7 +15,7 @@ Sample project for FP with Scala Course
    ```
    python3 -m venv dashDS4
    ```
-
+   
 ### Docker testing local
 
 ```
@@ -42,10 +42,22 @@ gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4
 ## POST
 
 ### /users
-* Summary:
-* Description:
+* Summary: Create a user.
+* Description: Validate that the user doesn't exist in the table and then insert the new user into it.
 * Parameters: None
 * Response:
+   - In positive case it returns the user in JSON format.
+   - "The user with legal id <legalId> already exists"
+ 
+* Example:
+      
+```
+gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4all-deploy
+```
+   
+```
+curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","email":"algo@gmail.com","phone":"3158453256"}' http://localhost:8000/users
+```
 
 ## PUT
 
@@ -57,29 +69,33 @@ gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4
        - String with validation message: "The user with legalId <legalId> has been modified.". 
        - If the user wasn't found: "Couldn't find the user with legalID <legalId>"
 
-
 ## GET
 
 ### /users
-* Summary:
-* Description:
+* Summary: Retrieve all the users.
+* Description: Retrieve all the users from the USERS table.
 * Parameters: None
-* Response:
+* Response: 
+   - A list with all the users in JSON format. 
+   - If there is no users it returns "There is no users created".
 
 ### /users/<legalId>
-* Summary:
-* Description:
-* Parameters: None
+* Summary: Retrieve the specified user.
+* Description: Retrieve the specified user from the USERS table.
+* Parameters: legalId
 * Response:
+   - The user in JSON format
+   - In negative case: "Couldn't find the user with legal id <legalId>"
    
 ## DELETE
 
-### /users
-* Summary: /<legalId>
-* Description:
-* Parameters: None
-* Response:
-
+### /users/<legalId>
+* Summary: Delete the specified user.
+* Description: Delete the specified user from the USERS table.
+* Parameters: <legalId>
+* Response: 
+   - "User deleted"
+   - Otherwise, it returns "Couldn't find the user with legal id <legalId>"
 
 
 <!-- CONTACT -->
