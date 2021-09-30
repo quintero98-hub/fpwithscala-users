@@ -21,16 +21,15 @@ private object UserSQL {
     WHERE LEGAL_ID = $legalId
   """.query[User]
 
-  def selectByLegalId2(legalId: String): Update0 = sql"""
-    SELECT ID, LEGAL_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE
+  def findAll(): Query0[User] = sql"""
+    SELECT *
     FROM USERS
-    WHERE LEGAL_ID = $legalId
-  """.update
+  """.query[User]
 
-  def update(user: User): Update0 = sql"""
+  def update(user: User, legalId: String): Update0 = sql"""
     UPDATE USERS
     SET FIRST_NAME = ${user.firstName}, LAST_NAME = ${user.lastName}, EMAIL = ${user.email}, PHONE = ${user.phone}
-    WHERE LEGAL_ID = ${user.legalId}
+    WHERE LEGAL_ID = $legalId
   """.update
 
   def delete(id: String): Update0 = sql"""
@@ -48,14 +47,12 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
 
   def findByLegalId(legalId: String): OptionT[F, User] = OptionT(selectByLegalId(legalId).option.transact(xa))
 
-  def upload(user:User): F[User] =
-    update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
+  def upload(user:User, legalId: String): F[User] =
+    update(user, legalId).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  /*
-  def getUserById(id: String):F[User] = {
-    selectByLegalId(id).transact(xa)
-  }
-   */
+  def delete(legalId: String):F[Boolean] = ???//delete(legalId).run.transact(xa)
+
+  def getAll():F[List[User]] = findAll().to[List].transact(xa)
 
 }
 
