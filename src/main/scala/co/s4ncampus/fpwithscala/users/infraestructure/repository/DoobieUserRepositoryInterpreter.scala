@@ -21,11 +21,11 @@ private object UserSQL {
     WHERE LEGAL_ID = $legalId
   """.query[User]
 
-  def selectByLegalId2(legalId: String): Update0 = sql"""
+  def selectByLegalId2(legalId: String): Query0[String] = sql"""
     SELECT ID, LEGAL_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE
     FROM USERS
     WHERE LEGAL_ID = $legalId
-  """.update
+  """.query[String]
 
   def update(user: User): Update0 = sql"""
     UPDATE USERS
@@ -51,9 +51,16 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   def upload(user:User): F[User] =
     update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def getUserById(id: String):F[User] = {
-    selectByLegalId(id).transact(xa)
+  
+  def getUser(id: String):F[Option[User]] = {
+    //selectByLegalId2(id).to[List].transact(xa)     // La funcion recibe id: String y retorna F[List[String]]
+    //selectByLegalId(id).stream.take(1).compile.toList.transact(xa) // La funcion recibe id: String y retorna F[User] Da ERROR Found: F[List[User]]
+    //selectByLegalId(id).to[List].transact(xa)
+    selectByLegalId(id).option.transact(xa)
+    //.unsafeRunSync()    // List[String]
+
   }
+  
 
 }
 

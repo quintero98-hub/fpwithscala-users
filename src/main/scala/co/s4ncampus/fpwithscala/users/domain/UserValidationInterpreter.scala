@@ -8,8 +8,8 @@ class UserValidationInterpreter[F[_]: Applicative](repository: UserRepositoryAlg
   def doesNotExist(user: User): EitherT[F, UserAlreadyExistsError, Unit] = 
     repository.findByLegalId(user.legalId).map(UserAlreadyExistsError).toLeft(())
 
-  def doesNotExist2(id: String): EitherT[F, UserAlreadyExistsError, Unit] =
-    repository.findByLegalId(id).map(UserAlreadyExistsError).toLeft(())
+  def doesNotExist2(legalId: String): EitherT[F, Unit, LegalIDDoesntExistError] =
+    repository.findByLegalId(legalId).map(LegalIDDoesntExistError).toRight(())
 }
 
 object UserValidationInterpreter {
