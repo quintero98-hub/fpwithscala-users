@@ -14,6 +14,9 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
 
     implicit val userDecoder: EntityDecoder[F, User] = jsonOf
 
+
+    //curl -X POST -d '{"legalId":"103","firstName":"Carlos","lastName":"Mendoza","email":"algo@gmail.com","phone":"3158453256"}'
+    //http://localhost:8000/users
     private def createUser(userService: UserService[F]): HttpRoutes[F] = 
         HttpRoutes.of[F] {
             case req @ POST -> Root =>
@@ -21,13 +24,13 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
                     user   <- req.as[User]
                     result <- userService.create(user).value
                 } yield result
-                println("create" + action)
                 action.flatMap {
                     case Right(saved) => Ok(saved.asJson)
                     case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
                 }
         }
-    //falta validar si el usuario existe
+    //curl -X PUT -d '{"legalId":"103","firstName":"Camilo", "lastName":"Zuluaga", "email":"carlos_zuluaga@epam.com", "phone":"3503247638"}'
+    //http://localhost:8000/users/103
     private def updateUser(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
             case req@ PUT -> Root /legalId =>
@@ -48,25 +51,35 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
                   case Some(user) => Ok(user.asJson)
                   case None       => Conflict(s"Couldn't find the user with legal id $legalId")
               }
-                 */
-                /*
                 action.flatMap {
                     case Right(saved) => Ok(saved.asJson)
                     case Left(UserDoesntExistError(existing)) => Conflict(s"The user with legal id ${existing.legalId} doesn't exist")
                 }
-                 */
+                */
         }
     }
 
     private def getUser(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
-            case GET -> Root /id =>
-                userService.get(id).value.flatMap {
+            case GET -> Root /legalID =>
+                userService.get(legalID).value.flatMap {
                     case Some(user) => Ok(user.asJson)
-                    case None       => Conflict(s"Couldn't find the user with legal id $id")
+                    case None       => Conflict(s"Couldn't find the user with legal id $legalID")
                 }
         }
     }
+
+    /*
+    private def getUsersByName(userService: UserService[F]): HttpRoutes[F] = {
+        HttpRoutes.of[F] {
+            case GET -> Root/name =>
+                userService.getUsersByName(name).flatMap {
+                    case list  => Ok(list.asJson)
+                    case Nil   => Conflict(s"Couldn't find users with first name $name")
+                }
+        }
+    }
+     */
 
     private def getAll(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
@@ -80,10 +93,10 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
 
     private def deleteUser(userService: UserService[F]): HttpRoutes[F] ={
         HttpRoutes.of[F] {
-            case DELETE -> Root /id =>
-            userService.delete(id).flatMap{
+            case DELETE -> Root /legalID =>
+            userService.delete(legalID).flatMap{
                 case true   => Ok("User deleted")
-                case false  => Conflict(s"Couldn't find the user with legal id $id")
+                case false  => Conflict(s"Couldn't find the user with legal id $legalID")
             }
         }
     }
@@ -91,6 +104,7 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
     def endpoints(userService: UserService[F]): HttpRoutes[F] = {
         //To convine routes use the function `<+>`
         createUser(userService)<+>updateUser(userService)<+>getUser(userService)<+>deleteUser(userService)<+>getAll(userService)
+        //
     }
 
 }

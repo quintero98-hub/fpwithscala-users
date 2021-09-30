@@ -8,4 +8,5 @@ trait UserRepositoryAlgebra[F[_]] {
   def upload(user: User, legalId:String): F[Boolean]
   def delete(legalId: String):F[Boolean]
   def getAll():F[List[User]]
+  //def getUsersByName(name:String):F[List[User]]
 }

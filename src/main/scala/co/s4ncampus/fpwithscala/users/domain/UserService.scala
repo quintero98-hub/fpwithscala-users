@@ -22,9 +22,11 @@ class UserService[F[_]](repository: UserRepositoryAlgebra[F], validation: UserVa
      */
   }
 
+  //def getUsersByName(name:String):F[List[User]] = repository.getUsersByName(name)
+
   def get(legalId: String): OptionT[F, User] = repository.findByLegalId(legalId)
 
-  def delete(legalId:String):F[Boolean] =repository.delete(legalId)
+  def delete(legalId:String):F[Boolean] = repository.delete(legalId)
 
   def getAll():F[List[User]] = repository.getAll()
 }

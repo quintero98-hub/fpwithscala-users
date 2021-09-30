@@ -36,6 +36,12 @@ private object UserSQL {
     DELETE FROM USERS
     WHERE LEGAL_ID = $id
   """.update
+
+  def findByName(name:String):Query0[User] = sql"""
+    SELECT *
+    FROM USERS
+    WHERE FIRST_NAME = $name
+  """.query[User]
 }
 
 class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
@@ -51,11 +57,14 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
     update(user, legalId).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
  */
 
+ //.run sirve para queries de tipo update
   def upload(user:User, legalId: String): F[Boolean] = update(user, legalId).run.transact(xa).map(_ == 1)
 
-  def delete(legalId: String):F[Boolean] = deleteUser(legalId).run.transact(xa).map(_ == 1)
+  def delete(legalId: String):F[Boolean] = deleteUser(legalId).run.transact(xa).map(_ == 1) //F[Int] -> F[Boolean]
 
   def getAll():F[List[User]] = findAll().to[List].transact(xa)
+
+  //def getUsersByName(name:String):F[List[User]] = findByName(name).to[List].transact(xa)
 
 }
 
