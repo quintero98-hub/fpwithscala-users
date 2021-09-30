@@ -54,8 +54,8 @@ gcloud builds submit --tag gcr.io/ds4all-deploy/dash-ds4-examaple  --project=ds4
 * Description: Validate that user exists in the database and overwrite its information with the new data in the corresponding row.
 * Parameters: legalId
 * Response: 
-       String with validation message: "The user with legalId <legalId> has been modified.". 
-       If the user wasn't found: "Couldn't find the user with legalID <legalId>"
+       - String with validation message: "The user with legalId <legalId> has been modified.". 
+       - If the user wasn't found: "Couldn't find the user with legalID <legalId>"
 
 
 ## GET
