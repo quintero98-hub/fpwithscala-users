@@ -32,7 +32,7 @@ private object UserSQL {
     WHERE LEGAL_ID = $legalId
   """.update
 
-  def delete(id: String): Update0 = sql"""
+  def deleteUser(id: String): Update0 = sql"""
     DELETE FROM USERS
     WHERE LEGAL_ID = $id
   """.update
@@ -50,7 +50,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   def upload(user:User, legalId: String): F[User] =
     update(user, legalId).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def delete(legalId: String):F[Boolean] = ???//delete(legalId).run.transact(xa)
+  def delete(legalId: String):F[Boolean] = deleteUser(legalId).run.transact(xa).map(_==1)
 
   def getAll():F[List[User]] = findAll().to[List].transact(xa)
 
