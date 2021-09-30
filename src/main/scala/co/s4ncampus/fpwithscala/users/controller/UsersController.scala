@@ -1,17 +1,13 @@
 package co.s4ncampus.fpwithscala.users.controller
 
 import co.s4ncampus.fpwithscala.users.domain._
-
 import cats.effect.Sync
 import cats.syntax.all._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-
-
 import org.http4s.{EntityDecoder, HttpRoutes}
-
 import co.s4ncampus.fpwithscala.users.domain.User
 
 class UsersController[F[_]: Sync] extends Http4sDsl[F] {
@@ -51,23 +47,36 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
     private def getUser(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
             case GET -> Root /id =>
-                userService.getUser(id).value.flatMap {
+                userService.get(id).value.flatMap {
                     case Some(user) => Ok(user.asJson)
                     case None       => Conflict(s"Couldn't find the user with legal id $id")
                 }
         }
     }
 
-    /*
-    * def get(id: Long): Action[AnyContent] = Action.async { request: Request[AnyContent] =>
-    clientsDao.get(id).map(_.getOrElse(throw NotFoundException()))
-      .map(x => Ok(Json.toJson(x)))
-  }
-    * */
+    private def getAll(userService: UserService[F]): HttpRoutes[F] = {
+        HttpRoutes.of[F] {
+            case GET -> Root =>
+                userService.getAll().flatMap {
+                    case Nil     => Conflict("There is no users created")
+                    case list    => Ok(list.asJson)
+                }
+        }
+    }
+
+    private def deleteUser(userService: UserService[F]): HttpRoutes[F] ={
+        HttpRoutes.of[F] {
+            case DELETE -> Root /id =>
+            userService.delete(id).flatMap{
+                case true   => Ok("User deleted")
+                case false  => Conflict(s"Couldn't find the user with legal id $id")
+            }
+        }
+    }
 
     def endpoints(userService: UserService[F]): HttpRoutes[F] = {
         //To convine routes use the function `<+>`
-        createUser(userService)<+>updateUser(userService)<+>getUser(userService)
+        createUser(userService)<+>updateUser(userService)<+>getUser(userService)<+>deleteUser(userService)<+>getAll(userService)
     }
 
 }

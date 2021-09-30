@@ -21,11 +21,10 @@ private object UserSQL {
     WHERE LEGAL_ID = $legalId
   """.query[User]
 
-  def selectByLegalId2(legalId: String): Update0 = sql"""
-    SELECT ID, LEGAL_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE
+  def findAll(): Query0[User] = sql"""
+    SELECT *
     FROM USERS
-    WHERE LEGAL_ID = $legalId
-  """.update
+  """.query[User]
 
   def update(user: User): Update0 = sql"""
     UPDATE USERS
@@ -51,11 +50,9 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   def upload(user:User): F[User] =
     update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  /*
-  def getUserById(id: String):F[User] = {
-    selectByLegalId(id).transact(xa)
-  }
-   */
+  def delete(legalId: String):F[Boolean] = ???//delete(legalId).run.transact(xa)
+
+  def getAll():F[List[User]] = findAll().to[List].transact(xa)
 
 }
 
