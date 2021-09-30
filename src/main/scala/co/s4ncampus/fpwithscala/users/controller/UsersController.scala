@@ -36,12 +36,12 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
         HttpRoutes.of[F] {
             //@GET public String printUserName(@PathParam("userName") String userId)
             case req@ PUT -> Root  =>
-                val action2 = for {
+                val action = for {
                     user   <- req.as[User]
                     result <- userService.upload(user).value
                 } yield result
 
-                action2.flatMap {
+                action.flatMap {
                     case Right(saved) => Ok(saved.asJson)
                     case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
                 }
@@ -50,15 +50,10 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
 
     private def getUser(userService: UserService[F]): HttpRoutes[F] = {
         HttpRoutes.of[F] {
-            case req@ GET -> Root  =>
-                val action2 = for {
-                    user   <- req.as[User]
-                    result <- userService.getUser("103").value
-                } yield result
-
-                action2.flatMap {
-                    case Right(saved) => Ok(saved.asJson)
-                    case Left(UserAlreadyExistsError(existing)) => Conflict(s"The user with legal id ${existing.legalId} already exists")
+            case GET -> Root /id =>
+                userService.getUser(id).value.flatMap {
+                    case Some(user) => Ok(user.asJson)
+                    case None       => Conflict(s"Couldn't find the user with legal id $id")
                 }
         }
     }
@@ -68,13 +63,11 @@ class UsersController[F[_]: Sync] extends Http4sDsl[F] {
     clientsDao.get(id).map(_.getOrElse(throw NotFoundException()))
       .map(x => Ok(Json.toJson(x)))
   }
-
     * */
 
     def endpoints(userService: UserService[F]): HttpRoutes[F] = {
         //To convine routes use the function `<+>`
-        createUser(userService)<+>updateUser(userService)
-        //<+>getUser(userService)
+        createUser(userService)<+>updateUser(userService)<+>getUser(userService)
     }
 
 }

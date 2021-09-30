@@ -51,9 +51,11 @@ class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tr
   def upload(user:User): F[User] =
     update(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
+  /*
   def getUserById(id: String):F[User] = {
     selectByLegalId(id).transact(xa)
   }
+   */
 
 }
 
